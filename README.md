@@ -31,3 +31,5 @@ Simply navigate to `http://localhost:3001` to see the emulator output.
 When I get some free time I'll be adding basic CRUD functionality for the entities, following a similar theme as Google's Datastore dashboard.
 
 PRs are welcome.
+
+Dockerhub: https://hub.docker.com/r/ryanplugged/dsviewer/
