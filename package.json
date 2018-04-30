@@ -1,0 +1,25 @@
+{
+  "name": "datastore-emulator-frontend",
+  "version": "0.0.1",
+  "description": "Simple front end client for interacting with local datastore emulator",
+  "main": "app.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "datastore",
+    "emulator",
+    "gui",
+    "frontend"
+  ],
+  "author": "Ryan Done",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/datastore": "^1.3.4",
+    "express": "^4.16.2",
+    "pug": "^2.0.0-rc.4",
+    "request": "^2.83.0",
+    "useragent": "^2.3.0",
+    "yamlparser": "0.0.2"
+  }
+}

@@ -1,0 +1,5 @@
+mixin parseEntityValue(entity, header)
+    - if (typeof entity[header] === 'string')
+    td #{entity[header]}
+    - else if (typeof entity[header] === 'object')
+    mixin parseEntityValue(entity[header])

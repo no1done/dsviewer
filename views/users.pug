@@ -1,0 +1,31 @@
+extends layout.pug
+
+block content
+    h3 Users
+    for user in users
+        p users/access_keys/#{user.api_key}
+        table.table(class="table-bordered table-striped table-condensed")
+            tr
+                th Api Key
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.api_key}
+            tr
+                th Google Access
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.google_access_token}
+            tr
+                th Google Refresh
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.google_refresh_token.substring(0, valueLength)}...
+            tr
+                th Keywords
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.keywords}
+            tr
+                th Facebook Code
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.facebook_access_code.substring(0, valueLength)}...
+            tr
+                th Facebook Token
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.facebook_access_token.substring(0, valueLength)}...
+            tr
+                th Scope
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.scope}
+            tr
+                th Semrush
+                td(style="word-wrap: break-word;max-width:50%!important;") #{user.semrush_project_id}

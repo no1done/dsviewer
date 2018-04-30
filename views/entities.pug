@@ -1,0 +1,27 @@
+extends layout.pug
+
+//- mixin parseEntityValue(val)
+//-     td
+//-         if (typeof val === 'string')
+//-             #{val}
+//-         else
+//-             +parseEntityValue(val)
+
+block content
+    p
+        a(href=`/`) Home 
+        span / 
+        a(href=`/filter/${namespace}`) #{namespace} 
+        span / #{kind}
+    div(class="table-responsive")
+        table.table(class="table-condensed")
+            thead
+                tr
+                    for header in headers
+                        th #{header}
+            tbody
+                for entity in entities
+                    tr
+                        for header in headers
+                            td #{entity[header]}
+                        

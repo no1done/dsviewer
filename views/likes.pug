@@ -1,0 +1,19 @@
+extends layout.pug
+
+block content
+    h3 Likes
+    for like in likes
+        p datastore/facebook/facebookLikes/#{like.api_key}
+        table.table(class="table-bordered table-striped table-condensed")
+            tr
+                th Api Key
+                td(style="word-wrap: break-word;max-width:50%!important;") #{like.api_key}
+            tr
+                th Page ID
+                td(style="word-wrap: break-word;max-width:50%!important;") #{like.page_id}
+            tr
+                th Total Likes
+                td(style="word-wrap: break-word;max-width:50%!important;") #{like.likes}
+            tr
+                th Date
+                td(style="word-wrap: break-word;max-width:50%!important;") #{like.date}
