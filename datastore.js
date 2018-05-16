@@ -8,9 +8,9 @@ class ds {
     constructor(namespace) {        
         
         this.datastore = datastore({
-            projectId: 'datastore-dev',
+            projectId: 'hallowed-byte-144310',
             namespace: namespace,
-            apiEndpoint: "datastore:8081"
+            apiEndpoint: "localhost:8081"
         });
     }
 };
