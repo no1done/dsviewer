@@ -4,19 +4,17 @@ const datastore = require("@google-cloud/datastore")
 const conf = require("./config/env")
 
 class ds {
-  constructor(namespace) {
-    if (namespace == undefined) {
+  constructor(namespace = false) {
+    if (!namespace) {
       this.datastore = datastore({
-        projectId: "seopluggedhq",
-        keyFilename: './keyfile.json'
-        // apiEndpoint: "localhost:8081"
+        projectId: "datastore-dev",
+        apiEndpoint: "localhost:8081"
       })
     } else {
       this.datastore = datastore({
-        projectId: "seopluggedhq",
+        projectId: "datastore-dev",
         namespace: namespace,
-        keyFilename: './keyfile.json'
-        // apiEndpoint: "localhost:8081"
+        apiEndpoint: "localhost:8081"
       })
     }
   }
