@@ -3,6 +3,8 @@ extends layout.pug
 block content
     h3 Select Namespace
     ul
+        li
+            a(href=`/filter/default`) Default
         for ns in namespaces
             li
                 a(href=`/filter/${ns}`) #{ns}

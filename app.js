@@ -1,135 +1,198 @@
-const express = require('express')
+const port = process.env.NODE_PORT || 3001
+const express = require("express")
 const app = express()
-const path = require('path'); 
-const Datastore = require('./datastore');
-const useragent = require('useragent');
-const https = require('https');
+const path = require("path")
+const Datastore = require("./datastore")
+const useragent = require("useragent")
+const https = require("https")
 
-app.set('view engine', 'pug');
-app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug")
+app.set("views", path.join(__dirname, "views"))
 
-app.get('/', function (req, res) {
-    
-    let datastore = new Datastore(null).datastore;    
+app.get("/", function (req, res) {
+  let datastore = new Datastore(null).datastore
 
-    // Query for namespace and pass through
-    let startKey = datastore.key(['__namespace__', '1']);
-    let endKey = datastore.key(['__namespace__', 'zzzz']);
+  // Query for namespace and pass through
+  let startKey = datastore.key(["__namespace__", "1"])
+  let endKey = datastore.key(["__namespace__", "zzzz"])
 
-    let query = datastore
-        .createQuery('__namespace__')
-        .select('__key__')
-        .filter('__key__', '>=', startKey)
-        .filter('__key__', '<', endKey);
+  let query = datastore
+    .createQuery("__namespace__")
+    .select("__key__")
+    .filter("__key__", ">=", startKey)
+    .filter("__key__", "<", endKey)
 
-    datastore.runQuery(query).then(results => {
+  datastore.runQuery(query).then(results => {
+    const entities = results[0]
+    const namespaces = entities.map(entity => entity[datastore.KEY].name)
 
-        const entities = results[0];
-        const namespaces = entities.map(
-            entity => entity[datastore.KEY].name
-        );
+    //console.log(entities)
 
-        res.render('index', {
-            namespaces: namespaces
-        });
-    });
+    res.render("index", {
+      namespaces: namespaces
+    })
+  })
+})
 
-});
+// Get blank namespace (default) entities
+app.get("/filter/default", function (req, res) {
+  let datastore = new Datastore().datastore
 
-app.get('/filter/:namespace', function (req, res) {
+  // Query for kinds under this namespace
+  const query = datastore.createQuery("__kind__").select("__key__")
 
-    let namespace = req.params.namespace;
-    let datastore = new Datastore(namespace).datastore; 
+  return datastore.runQuery(query).then(results => {
+    const entities = results[0]
+    const kinds = entities.map(entity => entity[datastore.KEY].name)
 
-    // Query for kinds under this namespace
-    const query = datastore.createQuery('__kind__').select('__key__');
+    console.log(entities)
 
-    return datastore.runQuery(query).then(results => {
-        const entities = results[0];
-        const kinds = entities.map(entity => entity[datastore.KEY].name);
+    res.render("kinds", {
+      kinds: kinds
+    })
+  })
+})
 
-       res.render('kinds', {
-           namespace: namespace,
-           kinds: kinds
-       }); 
-    });
-});
+app.get("/filter/default/:kind", function (req, res) {
+  // List entities
+  let previousCursor = req.query.previous || "first"
+  let currentCursor = req.query.cursor || "first"
+  let kind = req.params.kind
+  let datastore = new Datastore().datastore
 
-app.get('/filter/:namespace/:kind', function (req, res) {
+  // Query for kinds under this namespace
+  const query = datastore.createQuery(kind)
 
-    // List entities
+  query.limit(20)
 
-    let namespace = req.params.namespace;
-    let kind = req.params.kind;
-    let datastore = new Datastore(namespace).datastore; 
+  if (currentCursor !== undefined && currentCursor.length > 1) {
+    if (currentCursor !== "first") {
+      query.start(currentCursor)
+    }
+  }
 
-    // Query for kinds under this namespace
-    const query = datastore.createQuery(kind);
+  datastore.runQuery(query).then(async results => {
+    // entities found.
+    const entities = results[0]
+    const nextCursor = results[1].endCursor
 
-    datastore.runQuery(query).then(async results => {
-        // entities found.
-        const entities = results[0];
+    let headers = await sortHeaders(entities)
 
-        let headers = await sortHeaders(entities);
+    return res.render("entities", {
+      kind: kind,
+      entities: entities,
+      headers: headers,
+      previous: previousCursor,
+      current: currentCursor,
+      next: nextCursor
+    })
+  })
+})
 
-        return res.render('entities', {
-            namespace: namespace,
-            kind: kind,
-            entities: entities,
-            headers: headers
-        });
-    });
-});
+app.get("/filter/:namespace", function (req, res) {
+  let namespace = req.params.namespace
 
-app.delete('/entity/:namespace/:kind/:id', function (req, res) {
+  let datastore = new Datastore(namespace).datastore
 
-    let namespace = req.params.namespace;
-    let kind = req.params.kind;
-    let entityId = req.params.id;
-    let datastore = new Datastore(namespace).datastore; 
+  // Query for kinds under this namespace
+  const query = datastore.createQuery("__kind__").select("__key__")
 
-    // Query for kinds under this namespace
-    const query = datastore.createQuery(kind);
+  return datastore.runQuery(query).then(results => {
+    const entities = results[0]
+    const kinds = entities.map(entity => entity[datastore.KEY].name)
 
-    datastore.runQuery(query).then(async results => {
-        // entities found.
-        const entities = results[0];
+    res.render("kinds", {
+      namespace: namespace,
+      kinds: kinds
+    })
+  })
+})
 
-        //console.dir(entities);
-        let keys = [];
+app.get("/filter/:namespace/:kind", function (req, res) {
+  // List entities
+  let previousCursor = req.query.previous || "first"
+  let currentCursor = req.query.cursor || "first"
+  let namespace = req.params.namespace
+  let kind = req.params.kind
+  let datastore = new Datastore(namespace).datastore
 
-        for (i = 0;i < entities.length; i++) {
+  // Query for kinds under this namespace
+  const query = datastore.createQuery(kind)
 
-            keys.push(entities[i][datastore.KEY]);
-        }
+  console.log(kind)
 
-        datastore.delete(keys).then(() => {
-            // Tasks deleted successfully.
-            res.send('done');
-        });
+  query.limit(20)
 
-    });
-});
+  if (currentCursor !== undefined && currentCursor.length > 1) {
+    if (currentCursor !== "first") {
+      query.start(currentCursor)
+    }
+  }
+
+  datastore.runQuery(query).then(async results => {
+    // entities found.
+    const entities = results[0]
+    const nextCursor = results[1].endCursor
+
+    let headers = await sortHeaders(entities)
+
+    console.log(entities)
+
+    return res.render("entities", {
+      namespace: namespace,
+      kind: kind,
+      entities: entities,
+      headers: headers,
+      previous: previousCursor,
+      current: currentCursor,
+      next: nextCursor
+    })
+  })
+})
+
+app.delete("/entity/:namespace/:kind/:id", function (req, res) {
+  let namespace = req.params.namespace
+  let kind = req.params.kind
+  let entityId = req.params.id
+  let datastore = new Datastore(namespace).datastore
+
+  // Query for kinds under this namespace
+  const query = datastore.createQuery(kind)
+
+  datastore.runQuery(query).then(async results => {
+    // entities found.
+    const entities = results[0]
+
+    //console.dir(entities);
+    let keys = []
+
+    for (i = 0; i < entities.length; i++) {
+      keys.push(entities[i][datastore.KEY])
+    }
+
+    datastore.delete(keys).then(() => {
+      // Tasks deleted successfully.
+      res.send("done")
+    })
+  })
+})
 
 function sortHeaders(entities) {
+  return new Promise((resolve, reject) => {
+    let headers = []
 
-    return new Promise((resolve, reject) => {
+    entities.forEach(entity => {
+      Object.keys(entity).forEach(function (key) {
+        if (headers.includes(key) == false) {
+          headers.push(key)
+        }
+      })
+    })
 
-        let headers = [];
-
-        entities.forEach(entity => {
-            Object.keys(entity).forEach(function(key) {
-
-                if (headers.includes(key) == false) {
-                    headers.push(key);
-                }
-            });
-        });
-
-        resolve(headers);
-    });
+    resolve(headers)
+  })
 }
- 
-app.listen(80, function() {
-    console.log('Running on port 80');
-});
+
+app.listen(port, function () {
+  console.log("Running on port", port)
+})

@@ -11,7 +11,7 @@ block content
     p
         a(href=`/`) Home 
         span / 
-        a(href=`/filter/${namespace}`) #{namespace} 
+        a(href=`/filter/${namespace || 'default'}`) #{namespace || 'Default'} 
         span / #{kind}
     div(class="table-responsive")
         table.table(class="table-condensed")
@@ -24,4 +24,5 @@ block content
                     tr
                         for header in headers
                             td #{entity[header]}
-                        
+    a(href=`/filter/${namespace}/${kind}?cursor=${previous}`) Previous   
+    a(href=`/filter/${namespace}/${kind}?previous=${current}&cursor=${next}`) Next

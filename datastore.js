@@ -1,19 +1,25 @@
-'use strict'
+"use strict"
 
-const datastore = require('@google-cloud/datastore');
-const conf = require('./config/env');
+const datastore = require("@google-cloud/datastore")
+const conf = require("./config/env")
 
 class ds {
-
-    constructor(namespace) {        
-        
-        this.datastore = datastore({
-            projectId: 'datastore-dev',
-            namespace: namespace,
-            apiEndpoint: "datastore:8081"
-        });
+  constructor(namespace) {
+    if (namespace == undefined) {
+      this.datastore = datastore({
+        projectId: "seopluggedhq",
+        keyFilename: './keyfile.json'
+        // apiEndpoint: "localhost:8081"
+      })
+    } else {
+      this.datastore = datastore({
+        projectId: "seopluggedhq",
+        namespace: namespace,
+        keyFilename: './keyfile.json'
+        // apiEndpoint: "localhost:8081"
+      })
     }
-};
+  }
+}
 
-
-module.exports = ds;
+module.exports = ds
