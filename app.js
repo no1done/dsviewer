@@ -3,8 +3,6 @@ const express = require("express")
 const app = express()
 const path = require("path")
 const Datastore = require("./datastore")
-const useragent = require("useragent")
-const https = require("https")
 
 app.set("view engine", "pug")
 app.set("views", path.join(__dirname, "views"))
