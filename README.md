@@ -20,6 +20,9 @@ services:
     image: ryansd1/dsviewer:latest
     ports:
       - "3001:80"
+    environment:
+      - DATASTORE_PROJECT_ID=datastore-dev
+      - DATASTORE_LISTEN_ADDRESS=datastore:8081
     links:
       - datastore
 ```

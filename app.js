@@ -13,8 +13,8 @@ app.get("/", function (req, res) {
   let datastore = new Datastore(null).datastore
 
   // Query for namespace and pass through
-  let startKey = datastore.key(["__namespace__", "1"])
-  let endKey = datastore.key(["__namespace__", "zzzz"])
+  let startKey = datastore.key(["__namespace__", "a"])
+  let endKey = datastore.key(["__namespace__", "z"])
 
   let query = datastore
     .createQuery("__namespace__")
@@ -26,7 +26,7 @@ app.get("/", function (req, res) {
     const entities = results[0]
     const namespaces = entities.map(entity => entity[datastore.KEY].name)
 
-    //console.log(entities)
+    console.log('namespaces:', entities)
 
     res.render("index", {
       namespaces: namespaces
@@ -45,7 +45,7 @@ app.get("/filter/default", function (req, res) {
     const entities = results[0]
     const kinds = entities.map(entity => entity[datastore.KEY].name)
 
-    console.log(entities)
+    console.log('kinds:', kinds)
 
     res.render("kinds", {
       kinds: kinds
